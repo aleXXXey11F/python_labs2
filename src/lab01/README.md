@@ -67,7 +67,7 @@
 
 ![скриншот задания 2](images/lab01/2.png)
 
-![скриншот задания 3](images/lab01/3.png)
+![скриншот задания 3](python_labs2/images/lab01/3.png)
 
 ![скриншот задания 4](images/lab01/4.png)
 
