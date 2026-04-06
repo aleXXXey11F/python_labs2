@@ -256,7 +256,7 @@ class Fleet:
         Доступ к автобусу по индексу.
         
         Args:
-            index (int): Индекс автобуса
+            index (int): Индекс автобуса (поддерживает отрицательные индексы)
             
         Returns:
             Bus: Автобус по указанному индексу
@@ -266,8 +266,14 @@ class Fleet:
         """
         if isinstance(index, slice):
             return self._items[index]
+        
+        # Преобразуем отрицательный индекс в положительный
+        if index < 0:
+            index = len(self._items) + index
+        
         if index < 0 or index >= len(self._items):
             raise IndexError(f"Индекс {index} вне диапазона (0-{len(self._items)-1})")
+        
         return self._items[index]
     
     def __contains__(self, item):
