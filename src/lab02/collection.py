@@ -299,9 +299,9 @@ class Fleet:
             str: Информация о коллекции
         """
         if len(self._items) == 0:
-            return "🚌 Автопарк: пуст"
+            return "Автопарк: пуст"
         
-        result = f"🚌 Автопарк (всего автобусов: {len(self._items)})\n"
+        result = f"Автопарк (всего автобусов: {len(self._items)})\n"
         result += "-" * 50 + "\n"
         for i, bus in enumerate(self._items):
             result += f"{i+1}. {bus}\n"

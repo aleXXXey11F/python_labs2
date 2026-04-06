@@ -221,7 +221,7 @@ class Bus:
         status = "на маршруте" if self._is_on_route else "в парке"
         driver = self._driver_name if self._driver_name else "не назначен"
         
-        return (f"🚌 Автобус маршрута {self._route_number} | "
+        return (f"Автобус маршрута {self._route_number} | "
                 f"Водитель: {driver} | "
                 f"Вместимость: {self._capacity} | "
                 f"Пассажиров: {self._current_passengers} | "
