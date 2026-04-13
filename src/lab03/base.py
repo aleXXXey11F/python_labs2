@@ -9,9 +9,10 @@
 import sys
 import os
 
-# Добавляем пути для импорта модулей из ЛР-1
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from lab01.validate import (
+# Добавляем корневую папку проекта в sys.path для корректного импорта
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from src.lab01.validate import (
     validate_route_number,
     validate_capacity,
     validate_speed,
@@ -22,25 +23,11 @@ from lab01.validate import (
 class Bus:
     """
     Базовый класс, представляющий автобус на маршруте.
-    
-    Атрибуты класса:
-        vehicle_type (str): Тип транспортного средства
-        total_buses_created (int): Счетчик созданных экземпляров
-    
-    Атрибуты экземпляра:
-        _route_number (str): Номер маршрута
-        _capacity (int): Вместимость автобуса
-        _average_speed (float): Средняя скорость
-        _driver_name (str): Имя водителя
-        _current_passengers (int): Текущее количество пассажиров
-        _is_on_route (bool): Статус нахождения на маршруте
     """
-    
     vehicle_type = "Автобус"
     total_buses_created = 0
     
     def __init__(self, route_number, capacity, average_speed, driver_name=None):
-        """Конструктор базового класса Bus."""
         validate_route_number(route_number)
         validate_capacity(capacity)
         validate_speed(average_speed)
@@ -55,7 +42,6 @@ class Bus:
         
         Bus.total_buses_created += 1
     
-    # Свойства (геттеры)
     @property
     def route_number(self):
         return self._route_number
@@ -84,60 +70,47 @@ class Bus:
     def free_seats(self):
         return self._capacity - self._current_passengers
     
-    # Сеттер с валидацией
     @driver_name.setter
     def driver_name(self, new_name):
         validate_driver_name(new_name)
         self._driver_name = new_name
     
-    # Бизнес-методы
     def board_passenger(self):
-        """Посадка одного пассажира."""
         if not self._is_on_route:
             raise ValueError("Нельзя садить пассажиров - автобус не на маршруте")
-        
         if self._current_passengers < self._capacity:
             self._current_passengers += 1
             return True
         return False
     
     def alight_passenger(self):
-        """Высадка одного пассажира."""
         if not self._is_on_route:
             raise ValueError("Нельзя высаживать пассажиров - автобус не на маршруте")
-        
         if self._current_passengers > 0:
             self._current_passengers -= 1
             return True
         return False
     
     def start_route(self):
-        """Отправление автобуса на маршрут."""
         if self._driver_name is None:
             raise ValueError("Нельзя отправить автобус без водителя")
-        
         if self._is_on_route:
             raise ValueError("Автобус уже на маршруте")
-        
         self._is_on_route = True
         return True
     
     def end_route(self):
-        """Завершение маршрута."""
         self._is_on_route = False
         self._current_passengers = 0
         return True
     
     def calculate_travel_time(self, distance):
-        """Рассчитать время в пути."""
         if not isinstance(distance, (int, float)) or distance <= 0:
             raise ValueError("Расстояние должно быть положительным числом")
         return distance / self._average_speed
     
     def get_efficiency_rating(self):
-        """Получить рейтинг эффективности."""
         fill_ratio = self._current_passengers / self._capacity
-        
         if fill_ratio < 0.3:
             return "Низкая загрузка"
         elif fill_ratio < 0.7:
@@ -145,27 +118,11 @@ class Bus:
         else:
             return "Высокая загрузка"
     
-    # Полиморфный метод (будет переопределен в дочерних классах)
     def calculate_fare(self, distance):
-        """
-        Расчет стоимости проезда.
-        Базовый метод - будет переопределен в дочерних классах.
-        
-        Args:
-            distance (float): Расстояние в километрах
-            
-        Returns:
-            float: Стоимость проезда
-        """
-        # Базовая формула: 20 руб + 10 руб/км
+        # Базовый метод (может быть переопределён)
         return 20 + distance * 10
     
-    # Общий интерфейс для полиморфизма
     def get_info(self):
-        """
-        Получить информацию об автобусе.
-        Базовый метод - может быть переопределен.
-        """
         status = "на маршруте" if self._is_on_route else "в парке"
         return {
             "type": self.vehicle_type,
@@ -176,11 +133,9 @@ class Bus:
             "status": status
         }
     
-    # Магические методы
     def __str__(self):
         status = "на маршруте" if self._is_on_route else "в парке"
         driver = self._driver_name if self._driver_name else "не назначен"
-        
         return (f"🚌 {self.vehicle_type} маршрута {self._route_number} | "
                 f"Водитель: {driver} | "
                 f"Вместимость: {self._capacity} | "
