@@ -1,191 +1,102 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from src.lab03.base import Bus
+"""
+Производные классы для лабораторной работы №3.
+CityBus и TouristBus наследуются от базового класса Bus.
+"""
+
+from base import Bus
 
 
 class CityBus(Bus):
-    def __init__(self, route_number, capacity, average_speed, driver_name=None,
-                 route_type="обычный", has_validator=True):
+    """
+    Городской автобус.
+    Дополнительные атрибуты: количество остановок, наличие кондиционера.
+    """
+
+    def __init__(self, route_number, capacity, average_speed, driver_name,
+                 number_of_stops, has_air_conditioning):
+        # Вызов конструктора базового класса
         super().__init__(route_number, capacity, average_speed, driver_name)
-        self._route_type = route_type
-        self._has_validator = has_validator
-        self.vehicle_type = "Городской автобус"
-    
+
+        # Новые атрибуты
+        self._number_of_stops = number_of_stops
+        self._has_air_conditioning = has_air_conditioning
+
+    # Геттеры для новых атрибутов
     @property
-    def route_type(self):
-        return self._route_type
-    
+    def number_of_stops(self):
+        return self._number_of_stops
+
     @property
-    def has_validator(self):
-        return self._has_validator
-    
-    def get_route_schedule(self):
-        return {
-            "route": self._route_number,
-            "type": self._route_type,
-            "interval_minutes": 10 if self._route_type == "обычный" else 20,
-            "first_bus": "06:00",
-            "last_bus": "23:00"
-        }
-    
-    def calculate_fare(self, distance):
-        base_fare = 30.0
-        if self._has_validator:
-            return base_fare * 0.8
-        return base_fare
-    
-    def get_info(self):
-        info = super().get_info()
-        info.update({
-            "route_type": self._route_type,
-            "has_validator": self._has_validator,
-            "schedule": self.get_route_schedule()
-        })
-        return info
-    
+    def has_air_conditioning(self):
+        return self._has_air_conditioning
+
+    # Новый метод
+    def calculate_stop_density(self):
+        """Плотность остановок (количество остановок на 10 км маршрута)."""
+        # Для демонстрации используем фиктивную длину маршрута 20 км
+        route_length_km = 20.0
+        return (self._number_of_stops / route_length_km) * 10
+
+    # Переопределённый метод базового класса (полиморфизм)
+    def calculate_travel_time(self, distance):
+        """
+        Время в пути с учётом остановок (каждая остановка добавляет 0.5 минуты).
+        """
+        base_time = super().calculate_travel_time(distance)
+        stop_time = self._number_of_stops * 0.5 / 60.0  # минуты → часы
+        return base_time + stop_time
+
+    # Переопределение __str__ для демонстрации
     def __str__(self):
         base_str = super().__str__()
-        validator_str = "✅ валидатор есть" if self._has_validator else "❌ валидатора нет"
-        return f"{base_str} | {validator_str} | Тип: {self._route_type}"
+        ac_status = "есть кондиционер" if self._has_air_conditioning else "нет кондиционера"
+        return f"{base_str} | Остановок: {self._number_of_stops} | {ac_status}"
 
 
 class TouristBus(Bus):
-    def __init__(self, route_number, capacity, average_speed, driver_name=None,
-                 has_wifi=True, has_toilet=True, tour_guide_name=None):
+    """
+    Туристический автобус.
+    Дополнительные атрибуты: наличие туалета, вместимость багажа.
+    """
+
+    def __init__(self, route_number, capacity, average_speed, driver_name,
+                 has_toilet, luggage_capacity):
         super().__init__(route_number, capacity, average_speed, driver_name)
-        self._has_wifi = has_wifi
+
         self._has_toilet = has_toilet
-        self._tour_guide_name = tour_guide_name
-        self.vehicle_type = "Туристический автобус"
-    
-    @property
-    def has_wifi(self):
-        return self._has_wifi
-    
+        self._luggage_capacity = luggage_capacity
+
     @property
     def has_toilet(self):
         return self._has_toilet
-    
+
     @property
-    def tour_guide_name(self):
-        return self._tour_guide_name
-    
-    @tour_guide_name.setter
-    def tour_guide_name(self, name):
-        if name is not None and (not isinstance(name, str) or name.strip() == ""):
-            raise ValueError("Имя экскурсовода должно быть непустой строкой")
-        self._tour_guide_name = name
-    
-    def get_comfort_level(self):
-        score = 0
-        if self._has_wifi:
-            score += 1
+    def luggage_capacity(self):
+        return self._luggage_capacity
+
+    # Новый метод
+    def calculate_comfort_level(self):
+        """Уровень комфорта (0-10) на основе наличия туалета и вместимости багажа."""
+        level = 5  # базовый уровень
         if self._has_toilet:
-            score += 1
-        if self.capacity <= 30:
-            score += 1
-        if score >= 2:
-            return "Люкс"
-        elif score == 1:
-            return "Стандарт"
-        else:
-            return "Эконом"
-    
-    def calculate_fare(self, distance):
-        base_fare = 100 + distance * 20
-        comfort_multiplier = 1.0
-        if self._has_wifi:
-            comfort_multiplier += 0.1
-        if self._has_toilet:
-            comfort_multiplier += 0.1
-        if self.capacity <= 30:
-            comfort_multiplier += 0.2
-        if self._tour_guide_name:
-            comfort_multiplier += 0.15
-        return base_fare * comfort_multiplier
-    
-    def get_info(self):
-        info = super().get_info()
-        info.update({
-            "has_wifi": self._has_wifi,
-            "has_toilet": self._has_toilet,
-            "tour_guide": self._tour_guide_name,
-            "comfort_level": self.get_comfort_level()
-        })
-        return info
-    
+            level += 3
+        if self._luggage_capacity > 50:
+            level += 2
+        return min(level, 10)
+
+    # Переопределённый метод базового класса
+    def calculate_travel_time(self, distance):
+        """
+        Для туристического автобуса время увеличивается на 10% из-за более
+        спокойного стиля вождения (комфорт важнее скорости).
+        """
+        base_time = super().calculate_travel_time(distance)
+        return base_time * 1.1
+
     def __str__(self):
         base_str = super().__str__()
-        features = []
-        if self._has_wifi:
-            features.append("WiFi")
-        if self._has_toilet:
-            features.append("Туалет")
-        features_str = ", ".join(features) if features else "нет удобств"
-        guide_str = f" | Экскурсовод: {self._tour_guide_name}" if self._tour_guide_name else ""
-        return f"{base_str} | Удобства: {features_str}{guide_str} | Комфорт: {self.get_comfort_level()}"
-
-
-class SchoolBus(Bus):
-    def __init__(self, route_number, capacity, average_speed, driver_name=None,
-                 has_escort=True, school_name="МБОУ СОШ №1"):
-        super().__init__(route_number, capacity, average_speed, driver_name)
-        self._has_escort = has_escort
-        self._school_name = school_name
-        self.vehicle_type = "Школьный автобус"
-    
-    @property
-    def has_escort(self):
-        return self._has_escort
-    
-    @property
-    def school_name(self):
-        return self._school_name
-    
-    @school_name.setter
-    def school_name(self, name):
-        if not isinstance(name, str) or name.strip() == "":
-            raise ValueError("Название школы должно быть непустой строкой")
-        self._school_name = name
-    
-    def get_safety_rating(self):
-        rating = 5
-        if self._average_speed > 60:
-            rating -= 2
-        if self._has_escort:
-            rating += 1
-        if self._capacity > 40:
-            rating -= 1
-        return f"{rating}/5" if rating > 0 else "1/5"
-    
-    def calculate_fare(self, distance):
-        return 0.0
-    
-    def board_passenger(self):
-        if not self._is_on_route:
-            raise ValueError("Нельзя садить пассажиров - автобус не на маршруте")
-        if not self._has_escort and self._current_passengers >= self._capacity * 0.8:
-            print("⚠️ Внимание! Нет сопровождающего, посадка ограничена до 80% вместимости")
-            if self._current_passengers < self._capacity * 0.8:
-                self._current_passengers += 1
-                return True
-            return False
-        if self._current_passengers < self._capacity:
-            self._current_passengers += 1
-            return True
-        return False
-    
-    def get_info(self):
-        info = super().get_info()
-        info.update({
-            "has_escort": self._has_escort,
-            "school_name": self._school_name,
-            "safety_rating": self.get_safety_rating()
-        })
-        return info
-    
-    def __str__(self):
-        base_str = super().__str__()
-        escort_str = "👨‍🏫 с сопровождающим" if self._has_escort else "⚠️ без сопровождающего"
-        return f"{base_str} | {escort_str} | Школа: {self._school_name} | Безопасность: {self.get_safety_rating()}"
+        toilet_status = "есть туалет" if self._has_toilet else "нет туалета"
+        return f"{base_str} | {toilet_status} | Багаж: {self._luggage_capacity} кг"
