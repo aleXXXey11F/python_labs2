@@ -36,7 +36,6 @@ def scenario_1():
 def scenario_2():
     print_separator("СЦЕНАРИЙ 2: ПОЛИМОРФИЗМ ЧЕРЕЗ ИНТЕРФЕЙСЫ")
     
-    # Демонстрация вывода всех Printable объектов
     items = [
         PrintableCityBus("1", 40, 50.0, "Водитель1"),
         AdvancedElectricBus("E1", 30, 45.0, "Водитель2", battery_capacity=280.0),
@@ -52,7 +51,6 @@ def scenario_2():
     printables = [item for item in items if isinstance(item, Printable)]
     print_all(printables)
 
-    # Сортировка Comparable: покажем отдельно для билетов и отдельно для автобусов
     print("\nСортировка билетов по цене:")
     tickets = [Ticket("A", "1", 50), Ticket("B", "1", 30), Ticket("C", "1", 40)]
     from functools import cmp_to_key
@@ -74,14 +72,12 @@ def scenario_3():
     print_separator("СЦЕНАРИЙ 3: КОЛЛЕКЦИЯ С ИНТЕРФЕЙСАМИ")
     fleet = Fleet()
     fleet.add(PrintableCityBus("5", 50, 60.5, "Иванов", low_floor=True, has_air_conditioning=True))
-    # Добавим несколько объектов, которые могут сравниваться (одного типа)
     fleet.add(ComparableIntercityBus("101", 80, 90.0, "Петров", has_toilet=True, wifi_available=True))
     fleet.add(ComparableIntercityBus("102", 75, 85.0, "Сидоров", has_toilet=False, wifi_available=True))
     fleet.add(ComparableIntercityBus("103", 85, 95.0, "Смирнов", has_toilet=True, wifi_available=False))
     fleet.add(AdvancedElectricBus("10", 40, 55.0, "Электроводитель", battery_capacity=350.0))
     fleet.add(Ticket("T-001", "5", 35.0, "valid"))
     fleet.add(Ticket("T-002", "10", 50.0, "used"))
-    # Обычный автобус без интерфейсов
     from models import CityBus as PlainCityBus
     fleet.add(PlainCityBus("7", 45, 55.0, "СтарыйВодитель", low_floor=False))
 
@@ -96,7 +92,7 @@ def scenario_3():
     for obj in fleet.get_comparable():
         print(f"  {type(obj).__name__} – реализует compare_to")
 
-    print("\nСортировка Comparable (по возрастанию скорости):")
+    print("\nСортировка Comparable (группировка по типам, по возрастанию):")
     fleet.sort_comparable()
     print(fleet)
 

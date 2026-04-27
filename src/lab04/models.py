@@ -3,6 +3,7 @@
 """
 
 from interfaces import Printable, Comparable
+from functools import cmp_to_key
 
 # ====================== Базовая валидация (упрощённая) ======================
 class ValidationError(ValueError):
@@ -253,7 +254,7 @@ class Ticket(Printable, Comparable):
         return 0
 
 # ====================== Коллекция Fleet с интерфейсными методами ============
-from functools import cmp_to_key
+from collections import defaultdict
 
 class Fleet:
     def __init__(self):
@@ -289,10 +290,28 @@ class Fleet:
             print(item.to_string())
 
     def sort_comparable(self, reverse=False):
-        comparables = [item for item in self._items if isinstance(item, Comparable)]
-        others = [item for item in self._items if not isinstance(item, Comparable)]
-        comparables.sort(key=cmp_to_key(lambda a, b: a.compare_to(b)), reverse=reverse)
-        self._items = comparables + others
+        """
+        Группирует Comparable-объекты по точному типу и сортирует внутри каждой группы,
+        затем помещает их в начало коллекции. Не‑Comparable остаются в конце.
+        """
+        groups = defaultdict(list)
+        others = []
+        for item in self._items:
+            if isinstance(item, Comparable):
+                groups[type(item)].append(item)
+            else:
+                others.append(item)
+
+        # Сортируем каждую группу с использованием compare_to
+        for group in groups.values():
+            group.sort(key=cmp_to_key(lambda a, b: a.compare_to(b)), reverse=reverse)
+
+        # Сборка: сначала все группы Comparable, затем остальные
+        new_items = []
+        for group in groups.values():
+            new_items.extend(group)
+        new_items.extend(others)
+        self._items = new_items
 
     def __iter__(self):
         return iter(self._items)
