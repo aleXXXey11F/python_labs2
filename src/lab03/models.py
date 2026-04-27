@@ -3,7 +3,7 @@
 Реализует иерархию наследования от базового класса Bus.
 """
 
-from base import Bus
+from .base import Bus
 
 
 class CityBus(Bus):
