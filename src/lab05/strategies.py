@@ -1,104 +1,69 @@
 """
 Модуль стратегий и функций высшего порядка для коллекции транспортных средств.
-Включает именованные стратегии сортировки, фильтрации, фабрики функций,
-callable-объекты и вспомогательные обработчики.
+Использует модели из lab03.
 """
+
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from lab03.models import CityBus, IntercityBus, ElectricBus
 
 
-# --------------------------------------------------------------
-# Стратегии сортировки (key-функции)
-# --------------------------------------------------------------
-
+# --- Стратегии сортировки ---
 def by_route_number(bus):
-    """Сортировка по номеру маршрута (строковое сравнение)."""
+    """Сортировка по номеру маршрута."""
     return bus.route_number
 
-
 def by_capacity(bus):
-    """Сортировка по вместимости автобуса."""
+    """Сортировка по вместимости."""
     return bus.capacity
-
 
 def by_speed(bus):
     """Сортировка по средней скорости."""
     return bus.average_speed
 
-
 def by_fill_ratio(bus):
-    """Сортировка по доле занятых мест (чем выше, тем эффективнее)."""
+    """Сортировка по доле занятых мест."""
     return bus.current_passengers / bus.capacity if bus.capacity > 0 else 0
 
-
 def by_driver_name(bus):
-    """Сортировка по имени водителя (None идут в конец)."""
+    """Сортировка по имени водителя (без учёта регистра)."""
     return (bus.driver_name or "").lower()
 
 
-# --------------------------------------------------------------
-# Функции-фильтры (предикаты)
-# --------------------------------------------------------------
-
+# --- Функции-фильтры ---
 def is_city_bus(bus):
-    """Предикат: объект является городским автобусом."""
     return isinstance(bus, CityBus)
 
-
 def is_intercity_bus(bus):
-    """Предикат: объект является междугородним автобусом."""
     return isinstance(bus, IntercityBus)
 
-
 def is_electric_bus(bus):
-    """Предикат: объект является электробусом."""
     return isinstance(bus, ElectricBus)
 
-
 def is_on_route(bus):
-    """Предикат: автобус находится на маршруте."""
     return bus.is_on_route
 
-
 def has_free_seats(bus):
-    """Предикат: в автобусе есть свободные места."""
     return bus.free_seats > 0
 
 
-# --------------------------------------------------------------
-# Фабрики функций (замыкания)
-# --------------------------------------------------------------
-
+# --- Фабрики функций ---
 def make_capacity_filter(min_capacity):
-    """
-    Фабрика предиката: возвращает функцию, проверяющую вместимость >= min_capacity.
-
-    Пример:
-        big_buses = filter(make_capacity_filter(50), fleet)
-    """
+    """Создаёт фильтр по минимальной вместимости."""
     def filter_fn(bus):
         return bus.capacity >= min_capacity
     return filter_fn
 
-
 def make_route_filter(route_number):
-    """
-    Фабрика предиката: возвращает функцию, проверяющую совпадение номера маршрута.
-
-    Пример:
-        route_42 = filter(make_route_filter("42"), fleet)
-    """
+    """Создаёт фильтр по точному номеру маршрута."""
     def filter_fn(bus):
         return bus.route_number == route_number
     return filter_fn
 
 
-# --------------------------------------------------------------
-# Функции для map (преобразование объектов)
-# --------------------------------------------------------------
-
+# --- Функции для map ---
 def bus_to_dict(bus):
-    """Преобразует объект автобуса в словарь с основными полями."""
     return {
         "type": bus.vehicle_type,
         "route": bus.route_number,
@@ -107,38 +72,19 @@ def bus_to_dict(bus):
         "status": "on route" if bus.is_on_route else "depot"
     }
 
-
 def bus_to_summary_string(bus):
-    """Возвращает краткое строковое представление автобуса."""
     return f"{bus.vehicle_type} #{bus.route_number} (мест: {bus.capacity}, скорость: {bus.average_speed} км/ч)"
 
 
-# --------------------------------------------------------------
-# Callable-стратегии (паттерн «Стратегия»)
-# --------------------------------------------------------------
-
+# --- Callable-стратегии (паттерн «Стратегия») ---
 class DiscountStrategy:
-    """
-    Стратегия расчёта цены билета со скидкой.
-    Не изменяет сам объект, а возвращает пару (старая цена, новая цена).
-    """
-
+    """При вызове возвращает информацию о цене со скидкой."""
     def __init__(self, discount_percent):
-        """
-        Args:
-            discount_percent (float): процент скидки (0-100).
-        """
         self.discount = discount_percent / 100.0
 
     def __call__(self, bus):
-        """
-        Применяет скидку к стоимости проезда (результат calculate_fare).
-
-        Returns:
-            dict: информация об автобусе и изменении цены.
-        """
         try:
-            original = bus.calculate_fare(1.0)   # стандартное расстояние 1 км
+            original = bus.calculate_fare(1.0)
         except NotImplementedError:
             original = 0.0
         discounted = original * (1 - self.discount)
@@ -149,13 +95,8 @@ class DiscountStrategy:
             "discount": f"{self.discount*100:.0f}%"
         }
 
-
 class ActivateAllStrategy:
-    """
-    Стратегия перевода всех автобусов (не на маршруте) в активное состояние.
-    При вызове запускает маршрут, если автобус ещё не на маршруте и имеет водителя.
-    """
-
+    """Пытается отправить все доступные автобусы на маршрут."""
     def __call__(self, bus):
         if not bus.is_on_route and bus.driver_name is not None:
             try:
@@ -166,11 +107,7 @@ class ActivateAllStrategy:
         else:
             return f"{bus.route_number}: уже на маршруте или нет водителя"
 
-
 class SortByCapacityCallable:
-    """
-    Callable-объект, который можно использовать как key-функцию для сортировки по вместимости.
-    Демонстрирует, что стратегия может быть callable-объектом, а не только функцией.
-    """
+    """Callable-объект для сортировки по вместимости."""
     def __call__(self, bus):
         return bus.capacity
