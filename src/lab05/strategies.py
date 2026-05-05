@@ -1,17 +1,11 @@
 """
 Модуль стратегий: сортировки, фильтры, фабрики, map-функции и callable-объекты.
-Использует классы из collection.py (локальный импорт).
 """
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from collection import CityBus, IntercityBus, ElectricBus
 
-"""
-Модуль стратегий: сортировки, фильтры, фабрики, map-функции и callable-объекты.
-Импортирует классы из локального collection.py.
-"""
-from .collection import CityBus, IntercityBus, ElectricBus
-
+# --- стратегии сортировки ---
 def by_route_number(bus):
     return bus.route_number
 
@@ -27,6 +21,7 @@ def by_fill_ratio(bus):
 def by_driver_name(bus):
     return (bus.driver_name or "").lower()
 
+# --- фильтры ---
 def is_city_bus(bus):
     return isinstance(bus, CityBus)
 
@@ -42,6 +37,7 @@ def is_on_route(bus):
 def has_free_seats(bus):
     return bus.free_seats > 0
 
+# --- фабрики ---
 def make_capacity_filter(min_capacity):
     def filter_fn(bus):
         return bus.capacity >= min_capacity
@@ -52,6 +48,7 @@ def make_route_filter(route_number):
         return bus.route_number == route_number
     return filter_fn
 
+# --- map ---
 def bus_to_dict(bus):
     return {
         "type": bus.vehicle_type,
@@ -64,6 +61,7 @@ def bus_to_dict(bus):
 def bus_to_summary_string(bus):
     return f"{bus.vehicle_type} #{bus.route_number} (мест: {bus.capacity}, скорость: {bus.average_speed} км/ч)"
 
+# --- callable-стратегии ---
 class DiscountStrategy:
     def __init__(self, discount_percent):
         self.discount = discount_percent / 100.0
