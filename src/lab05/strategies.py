@@ -1,37 +1,24 @@
 """
-Модуль стратегий и функций высшего порядка для коллекции транспортных средств.
-Использует модели из lab03.
+Модуль стратегий: сортировки, фильтры, фабрики, map-функции и callable-объекты.
+Импортирует классы из локального collection.py.
 """
+from .collection import CityBus, IntercityBus, ElectricBus
 
-import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from lab03.models import CityBus, IntercityBus, ElectricBus
-
-
-# --- Стратегии сортировки ---
 def by_route_number(bus):
-    """Сортировка по номеру маршрута."""
     return bus.route_number
 
 def by_capacity(bus):
-    """Сортировка по вместимости."""
     return bus.capacity
 
 def by_speed(bus):
-    """Сортировка по средней скорости."""
     return bus.average_speed
 
 def by_fill_ratio(bus):
-    """Сортировка по доле занятых мест."""
     return bus.current_passengers / bus.capacity if bus.capacity > 0 else 0
 
 def by_driver_name(bus):
-    """Сортировка по имени водителя (без учёта регистра)."""
     return (bus.driver_name or "").lower()
 
-
-# --- Функции-фильтры ---
 def is_city_bus(bus):
     return isinstance(bus, CityBus)
 
@@ -47,22 +34,16 @@ def is_on_route(bus):
 def has_free_seats(bus):
     return bus.free_seats > 0
 
-
-# --- Фабрики функций ---
 def make_capacity_filter(min_capacity):
-    """Создаёт фильтр по минимальной вместимости."""
     def filter_fn(bus):
         return bus.capacity >= min_capacity
     return filter_fn
 
 def make_route_filter(route_number):
-    """Создаёт фильтр по точному номеру маршрута."""
     def filter_fn(bus):
         return bus.route_number == route_number
     return filter_fn
 
-
-# --- Функции для map ---
 def bus_to_dict(bus):
     return {
         "type": bus.vehicle_type,
@@ -75,10 +56,7 @@ def bus_to_dict(bus):
 def bus_to_summary_string(bus):
     return f"{bus.vehicle_type} #{bus.route_number} (мест: {bus.capacity}, скорость: {bus.average_speed} км/ч)"
 
-
-# --- Callable-стратегии (паттерн «Стратегия») ---
 class DiscountStrategy:
-    """При вызове возвращает информацию о цене со скидкой."""
     def __init__(self, discount_percent):
         self.discount = discount_percent / 100.0
 
@@ -96,7 +74,6 @@ class DiscountStrategy:
         }
 
 class ActivateAllStrategy:
-    """Пытается отправить все доступные автобусы на маршрут."""
     def __call__(self, bus):
         if not bus.is_on_route and bus.driver_name is not None:
             try:
@@ -108,6 +85,5 @@ class ActivateAllStrategy:
             return f"{bus.route_number}: уже на маршруте или нет водителя"
 
 class SortByCapacityCallable:
-    """Callable-объект для сортировки по вместимости."""
     def __call__(self, bus):
         return bus.capacity
