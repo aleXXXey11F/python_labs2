@@ -2,6 +2,21 @@
 Демонстрация лабораторной работы №5.
 Три сценария: цепочки, замена стратегий, map/фабрики/callable.
 """
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from collection import CityBus, IntercityBus, ElectricBus, Fleet
+from strategies import (
+    by_route_number, by_capacity, by_speed, by_fill_ratio,
+    is_city_bus, is_electric_bus, is_on_route,
+    make_capacity_filter,
+    bus_to_dict,
+    DiscountStrategy, ActivateAllStrategy, SortByCapacityCallable
+)
+
+"""
+Демонстрация лабораторной работы №5.
+Три сценария: цепочки, замена стратегий, map/фабрики/callable.
+"""
 from .collection import CityBus, IntercityBus, ElectricBus, Fleet
 from .strategies import (
     by_route_number, by_capacity, by_speed, by_fill_ratio,

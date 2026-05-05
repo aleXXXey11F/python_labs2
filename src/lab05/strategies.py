@@ -1,5 +1,13 @@
 """
 Модуль стратегий: сортировки, фильтры, фабрики, map-функции и callable-объекты.
+Использует классы из collection.py (локальный импорт).
+"""
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from collection import CityBus, IntercityBus, ElectricBus
+
+"""
+Модуль стратегий: сортировки, фильтры, фабрики, map-функции и callable-объекты.
 Импортирует классы из локального collection.py.
 """
 from .collection import CityBus, IntercityBus, ElectricBus
