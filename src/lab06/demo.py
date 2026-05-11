@@ -21,8 +21,8 @@ def demo_3() -> None:
     """Задание на 3: базовая типизация и TypedCollection[Bus]."""
     print_section("ЗАДАНИЕ 3: TYPEDCOLLECTION С АННОТАЦИЯМИ ТИПОВ")
 
-    # Создаём типизированную коллекцию для объектов Bus
-    fleet: TypedCollection[Bus] = TypedCollection()
+    # Создаём типизированную коллекцию с явным указанием параметра типа
+    fleet: TypedCollection[Bus] = TypedCollection[Bus]()
 
     bus1 = CityBus("12", 80, 45, "Иванов", low_floor=True, has_air_conditioning=True)
     bus2 = IntercityBus("М4", 55, 90, "Петров", has_toilet=True, wifi_available=True)
