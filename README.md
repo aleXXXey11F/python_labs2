@@ -7,3 +7,5 @@
 [LAB04](src/lab04/README.md)
 
 [LAB05](src/lab05/README.md)
+
+[LAB06](src/lab06/README.md)
