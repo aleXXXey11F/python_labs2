@@ -4,7 +4,10 @@
 Содержит все необходимые классы и функции без внешних зависимостей.
 """
 
-from typing import TypeVar, Generic, Callable, Optional, List, Protocol, Iterable, Union
+from typing import (
+    TypeVar, Generic, Callable, Optional, List, Protocol,
+    Iterable, Union, get_args, get_origin
+)
 
 
 # ============================================================================
@@ -290,14 +293,28 @@ S = TypeVar('S', bound=Scorable)     # только объекты со score()
 # ============================================================================
 
 class TypedCollection(Generic[T]):
-    """Generic-коллекция, хранящая элементы типа T."""
+    """Generic-коллекция, хранящая элементы типа T, с проверкой типа при добавлении."""
 
     def __init__(self) -> None:
         self._items: List[T] = []
 
     # ---------- базовые операции ----------
     def add(self, item: T) -> bool:
-        """Добавить элемент. Возвращает True, если добавлен."""
+        """
+        Добавить элемент. Выполняет проверку типа во время выполнения
+        (если класс был конкретизирован, например TypedCollection[Bus]).
+        """
+        # Проверка типа во время выполнения через __orig_class__
+        if hasattr(self, '__orig_class__'):
+            base_args = get_args(self.__orig_class__)
+            if base_args:
+                expected_type = base_args[0]
+                # Проверяем только если expected_type — конкретный класс (не TypeVar)
+                if isinstance(expected_type, type):
+                    if not isinstance(item, expected_type):
+                        raise TypeError(
+                            f"Ожидается объект типа {expected_type.__name__}, получен {type(item).__name__}"
+                        )
         # Проверка дубликатов по __eq__
         for existing in self._items:
             if existing == item:
