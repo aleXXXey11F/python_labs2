@@ -1,0 +1,38 @@
+[
+  {
+    "type": "CityBus",
+    "route_number": "5",
+    "capacity": 50,
+    "average_speed": 60.5,
+    "driver_name": "Иванов",
+    "current_passengers": 0,
+    "is_on_route": false,
+    "created_at": "2026-05-26T08:54:59.330268",
+    "low_floor": true,
+    "has_air_conditioning": true
+  },
+  {
+    "type": "ElectricBus",
+    "route_number": "E1",
+    "capacity": 40,
+    "average_speed": 55.0,
+    "driver_name": "Сидоров",
+    "current_passengers": 0,
+    "is_on_route": false,
+    "created_at": "2026-05-26T08:54:59.330305",
+    "battery_capacity": 350.0,
+    "charging_time": 4.0
+  },
+  {
+    "type": "IntercityBus",
+    "route_number": "202",
+    "capacity": 65,
+    "average_speed": 85.0,
+    "driver_name": "Кузнецов",
+    "current_passengers": 0,
+    "is_on_route": false,
+    "created_at": "2026-05-26T08:54:59.340604",
+    "has_toilet": true,
+    "wifi_available": true
+  }
+]
