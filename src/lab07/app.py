@@ -1,6 +1,7 @@
 # lab07/app.py
 """Бизнес-логика приложения: управление коллекцией автобусов."""
 
+from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
 from models import Bus, CityBus, IntercityBus, ElectricBus, ValidationError
 from exceptions import DuplicateItemError, ItemNotFoundError
@@ -147,6 +148,5 @@ class App:
         return bus.average_speed
 
     @staticmethod
-    def key_by_created(bus: Bus) -> 'datetime':
-        from datetime import datetime
+    def key_by_created(bus: Bus) -> datetime:
         return bus.created_at
