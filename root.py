@@ -6,3 +6,8 @@ def digital_root(n):
             n //= 10
         n = s
     return n
+
+print(digital_root(942))
+print(digital_root(38))
+print(digital_root(5))
+print(digital_root(0))
